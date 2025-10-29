@@ -1,0 +1,23 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "skillcampus-4165c",
+          "appId": "1:230075753481:android:22c5f46ecef24b7a62c4d8",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "skillcampus-4165c",
+          "configurations": {
+            "android": "1:230075753481:android:22c5f46ecef24b7a62c4d8",
+            "ios": "1:230075753481:ios:3f1479fbe1ee529462c4d8",
+            "web": "1:230075753481:web:1cd7409060ec977f62c4d8"
+          }
+        }
+      }
+    }
+  }
+}

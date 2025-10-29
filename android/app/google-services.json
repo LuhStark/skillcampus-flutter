@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "230075753481",
+    "firebase_url": "https://skillcampus-4165c-default-rtdb.firebaseio.com",
+    "project_id": "skillcampus-4165c",
+    "storage_bucket": "skillcampus-4165c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230075753481:android:22c5f46ecef24b7a62c4d8",
+        "android_client_info": {
+          "package_name": "br.luhstark.skillcampus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzwCJ00rdJMjcm1t4f5pCLF4sLwxQhvTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

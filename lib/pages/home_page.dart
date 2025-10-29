@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:skillcampus/pages/inicio_page.dart';
+import 'package:skillcampus/pages/login_page.dart';
 import 'package:skillcampus/pages/profilepage.dart';
 import 'package:skillcampus/pages/rankingpage.dart';
 
@@ -32,14 +35,77 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  
+  // Variáveis de estado para exibir dados do usuário
+  String _userName = "Visitante";
+  String _userInitial = "V";
+  String _greetingText = "Faça login para começar!";
 
-  final List<Widget> _pages = const [InicioPage(), RankingPage(), ProfilePage()];
+  // Obtém o usuário atual (pode ser null se não estiver logado)
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+
+  // Lista de páginas (usando placeholders onde as páginas não foram definidas)
+  final List<Widget> _pages = const [
+    InicioPage(), 
+    // Substituído RankingPage e ProfilePage por placeholders para compilação
+    RankingPage(),
+    ProfilePage()
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    // 1. Tenta obter o nome do usuário logado
+    if (currentUser != null) {
+      String? displayName = currentUser!.displayName;
+      String? email = currentUser!.email;
+
+      String nameToDisplay;
+      String initial;
+
+      if (displayName != null && displayName.isNotEmpty) {
+        // Opção A: Usa o nome completo (pegando só o primeiro nome para a saudação)
+        nameToDisplay = displayName.split(' ')[0]; 
+        initial = displayName[0].toUpperCase();
+        _greetingText = "Pronto para um novo desafio?";
+
+      } else if (email != null && email.isNotEmpty) {
+        // Opção B: Fallback para o email (usa a parte antes do @)
+        nameToDisplay = email.split('@')[0];
+        initial = email[0].toUpperCase();
+        _greetingText = "Complete seu perfil!"; // Nova saudação para incentivar o nome
+      } else {
+        // Opção C: Fallback geral
+        nameToDisplay = "Usuário";
+        initial = "U";
+      }
+
+      setState(() {
+        _userName = nameToDisplay;
+        _userInitial = initial;
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
+
+  // Função para fazer logout
+  void _handleLogout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,33 +116,41 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         title: Row(
           children: [
+            // --------------------- AVATAR DINÂMICO ---------------------
             CircleAvatar(
               backgroundColor: const Color(0xFFD8DCFF),
-              child: const Text("M", style: TextStyle(color: Colors.black87)),
+              // Usa a inicial do nome obtida
+              child: Text(_userInitial, style: const TextStyle(color: Colors.black87)),
             ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
+                // --------------------- NOME DINÂMICO ---------------------
                 Text(
-                  "Olá, Maria Silva!",
-                  style: TextStyle(
+                  "Olá, $_userName!", // Usa o nome dinâmico
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
+                // --------------------- SAUDAÇÃO DINÂMICA ---------------------
                 Text(
-                  "Pronto para um novo desafio?",
-                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                  _greetingText, // Usa o texto dinâmico
+                  style: const TextStyle(color: Colors.black54, fontSize: 13),
                 ),
               ],
             ),
           ],
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.person_outline, color: Colors.black54),
+            padding: const EdgeInsets.only(right: 16),
+            // Ícone de Logout
+            child: IconButton(
+              icon: const Icon(Icons.logout, color: Colors.black54),
+              onPressed: _handleLogout,
+            ),
           ),
         ],
       ),
@@ -99,299 +173,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: "Perfil",
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ========================= PÁGINA DE INÍCIO =========================
-
-class InicioPage extends StatelessWidget {
-  const InicioPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Card "Entrar em uma sala"
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Icon(Icons.group_outlined, color: Colors.black54),
-                    SizedBox(width: 8),
-                    Text(
-                      "Entrar em uma Sala",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Digite o código da sala",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF5F6FA),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4A3AFF),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Text(
-                        "Entrar",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Card "Criar novo quiz"
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF3FF),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFCED6F5)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.add, size: 32, color: Color(0xFF4A3AFF)),
-                const SizedBox(height: 8),
-                const Text(
-                  "Criar Novo Quiz",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF3B2CCF),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  "Crie seu próprio quiz e desafie seus amigos!",
-                  style: TextStyle(color: Colors.black54),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4A3AFF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {},
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text(
-                    "Criar Quiz",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 28),
-
-          // Quizzes Disponíveis
-          const Text(
-            "Quizzes Disponíveis",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Lista de quizzes
-          SizedBox(
-            height: 250,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: const [
-                QuizCard(
-                  titulo: "Quiz de Geografia",
-                  categoria: "Geografia",
-                  dificuldade: "Fácil",
-                  participantes: 12,
-                  duracao: "5 min",
-                  perguntas: 10,
-                  corDificuldade: Colors.green,
-                ),
-                QuizCard(
-                  titulo: "Quiz de História",
-                  categoria: "História",
-                  dificuldade: "Médio",
-                  participantes: 8,
-                  duracao: "8 min",
-                  perguntas: 15,
-                  corDificuldade: Colors.orange,
-                ),
-                QuizCard(
-                  titulo: "Quiz de Ciências",
-                  categoria: "Ciências",
-                  dificuldade: "Difícil",
-                  participantes: 20,
-                  duracao: "6 min",
-                  perguntas: 12,
-                  corDificuldade: Colors.red,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class QuizCard extends StatelessWidget {
-  final String titulo;
-  final String categoria;
-  final String dificuldade;
-  final int participantes;
-  final String duracao;
-  final int perguntas;
-  final Color corDificuldade;
-
-  const QuizCard({
-    super.key,
-    required this.titulo,
-    required this.categoria,
-    required this.dificuldade,
-    required this.participantes,
-    required this.duracao,
-    required this.perguntas,
-    required this.corDificuldade,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      margin: const EdgeInsets.only(right: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            titulo,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF3FF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              categoria,
-              style: const TextStyle(color: Color(0xFF3B2CCF)),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.people_outline, size: 16, color: Colors.black54),
-              const SizedBox(width: 4),
-              Text("$participantes"),
-              const Spacer(),
-              const Icon(Icons.access_time, size: 16, color: Colors.black54),
-              const SizedBox(width: 4),
-              Text(duracao),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: corDificuldade.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              dificuldade,
-              style: TextStyle(
-                color: corDificuldade,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          const Spacer(),
-          Text(
-            "$perguntas perguntas",
-            style: const TextStyle(color: Colors.black54),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E1E2A),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () {},
-              child: const Text(
-                "Participar",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
           ),
         ],
       ),

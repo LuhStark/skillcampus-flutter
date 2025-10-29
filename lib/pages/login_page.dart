@@ -112,8 +112,8 @@ class _LoginPageState extends State<LoginPage> {
           obscureText: obscure,
           keyboardType: keyboardType,
           validator: validator,
-          decoration: const InputDecoration(
-            hintText: 'hint',
+          decoration: InputDecoration(
+            hintText: hint,
             contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(8)),
