@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skillcampus/profilepage.dart';
-import 'package:skillcampus/rankingpage.dart';
+import 'package:skillcampus/pages/profilepage.dart';
+import 'package:skillcampus/pages/rankingpage.dart';
 
 void main() {
   runApp(const SkillCampusApp());
